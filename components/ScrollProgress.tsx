@@ -57,7 +57,7 @@ const ScrollProgress: React.FC = () => {
 
   return (
     <div 
-      className="fixed top-0 left-0 w-full h-1.5 bg-gray-200/50 z-[60] border-b border-gray-200"
+      className="fixed top-0 left-0 w-full h-2.5 bg-gray-200/30 z-[60] shadow-sm"
       role="progressbar" 
       aria-label="Progression de la lecture de la page"
       aria-valuemin={0} 
@@ -65,7 +65,7 @@ const ScrollProgress: React.FC = () => {
       aria-valuenow={typeof window !== 'undefined' ? parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--scroll-progress')) : 0}
     >
       <div 
-        className="h-full"
+        className="h-full shadow-md"
         style={{ 
           width: 'var(--scroll-progress, 0%)',
           background: 'var(--scroll-bg, #0055A4)',

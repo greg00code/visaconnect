@@ -2,9 +2,34 @@
 <html lang="fr" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Visa Schengen France pour couples Franco-Thaïlandais</title>
+    <title>VisaConnect - Visa Schengen pour couples Franco-Thaïlandais</title>
+    
+    <!-- Meta Description -->
+    <meta name="description" content="Simplifiez vos démarches de visa Schengen pour votre conjoint(e) thaïlandais(e). Accompagnement personnalisé, dossier optimisé, taux de succès élevé. Service spécialisé couples franco-thaïlandais." />
+    <meta name="keywords" content="visa schengen, france, thaïlande, couple franco-thaïlandais, visa conjoint, visa tourisme, dossier visa" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://visaconnect-5157c.web.app/" />
+    <meta property="og:title" content="VisaConnect - Visa Schengen pour couples Franco-Thaïlandais" />
+    <meta property="og:description" content="Simplifiez vos démarches de visa Schengen pour votre conjoint(e) thaïlandais(e). Accompagnement personnalisé et taux de succès élevé." />
+    <meta property="og:image" content="https://visaconnect-5157c.web.app/images/og-image.png" />
+    <meta property="og:locale" content="fr_FR" />
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://visaconnect-5157c.web.app/" />
+    <meta name="twitter:title" content="VisaConnect - Visa Schengen pour couples Franco-Thaïlandais" />
+    <meta name="twitter:description" content="Simplifiez vos démarches de visa Schengen pour votre conjoint(e) thaïlandais(e). Service spécialisé et accompagnement personnalisé." />
+    <meta name="twitter:image" content="https://visaconnect-5157c.web.app/images/og-image.png" />
+    
+    <!-- Additional SEO -->
+    <meta name="author" content="VisaConnect" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://visaconnect-5157c.web.app/" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,7 +74,20 @@
 <link rel="stylesheet" href="/index.css">
 </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div id="loading-fallback" class="min-h-screen bg-gradient-to-b from-green-50 to-white flex items-center justify-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-blue"></div>
+      </div>
+    </div>
+    <script>
+      // Cacher le fallback dès que React se charge
+      document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+          const fallback = document.getElementById('loading-fallback');
+          if (fallback) fallback.style.display = 'none';
+        }, 100);
+      });
+    </script>
   <script type="module" src="/index.tsx"></script>
 </body>
 </html>

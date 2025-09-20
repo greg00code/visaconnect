@@ -44,11 +44,11 @@ const WhyUs: React.FC = () => {
                 description="Notre méthode rigoureuse et notre veille constante des procédures consulaires maximisent vos chances de succès."
               />
             </div>
-            <div className="hidden md:block">
+            <div className="hidden md:flex md:items-center md:justify-center">
               <img 
-                src="https://picsum.photos/600/700" 
-                alt="Image illustrant la confiance" 
-                className="rounded-xl shadow-2xl object-cover w-full h-full" 
+                src="/images/couple-visa-consultation.png" 
+                alt="Couple franco-thaïlandais consultant leurs documents de visa" 
+                className="rounded-xl shadow-2xl object-cover w-full max-w-md h-auto" 
               />
             </div>
         </div>

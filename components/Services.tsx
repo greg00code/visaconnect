@@ -1,5 +1,5 @@
-
-import React from 'react';
+import React, { useState } from 'react';
+import { createStripeCheckoutCallable } from '../firebase'; // Importer la fonction
 
 const CheckIcon = () => (
   <svg className="w-6 h-6 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
@@ -12,7 +12,66 @@ const ServiceCard: React.FC<{
   description: string;
   features: string[];
   isFeatured?: boolean;
-}> = ({ title, price, priceSuffix = '€', description, features, isFeatured = false }) => {
+  planId: string; // Ajout du planId pour l'identification
+}> = ({ title, price, priceSuffix = '€', description, features, isFeatured = false, planId }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [customerName, setCustomerName] = useState('');
+
+  const handlePayment = async () => {
+    if (!customerEmail || !customerName) {
+      alert('Veuillez remplir tous les champs');
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      // Capturer le prospect avant redirection Stripe
+      await fetch('https://n8n.galette.ovh/webhook/poststripe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: customerName,
+          email: customerEmail,
+          planId: planId,
+          timestamp: new Date().toISOString(),
+          status: 'prospect_initiated_payment'
+        })
+      });
+
+      const result: any = await createStripeCheckoutCallable({ 
+        planId,
+        email: customerEmail,
+        name: customerName 
+      });
+      const { checkoutUrl } = result.data;
+      if (checkoutUrl) {
+        window.location.href = checkoutUrl;
+      } else {
+        console.error('No checkoutUrl received');
+        alert('Une erreur est survenue lors de la création de la session de paiement.');
+      }
+    } catch (error) {
+      console.error('Error creating Stripe session:', error);
+      alert('Une erreur est survenue. Veuillez réessayer.');
+    }
+    setIsLoading(false);
+    setShowModal(false);
+  };
+
+  const openModal = () => {
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setCustomerEmail('');
+    setCustomerName('');
+  };
+
   const cardClasses = isFeatured 
     ? "bg-brand-blue text-white border-4 border-brand-gold" 
     : "bg-white text-gray-800 border-2 border-gray-200";
@@ -69,9 +128,63 @@ const ServiceCard: React.FC<{
           );
         })}
       </ul>
-      <a href="#contact" className={`mt-auto text-center w-full py-3 px-6 rounded-full transition duration-300 ${buttonClasses}`}>
-        Choisir cette formule
-      </a>
+      <button onClick={openModal} disabled={isLoading} className={`mt-auto text-center w-full py-3 px-6 rounded-full transition duration-300 ${buttonClasses} disabled:opacity-50`}>
+        {isLoading ? 'Chargement...' : 'Choisir cette formule'}
+      </button>
+      
+      {/* Modal pour capturer email et nom */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={closeModal}>
+          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-2xl font-bold text-brand-blue mb-4">Informations de contact</h3>
+            <p className="text-gray-600 mb-6">Ces informations nous permettront de vous envoyer les accès à votre espace client.</p>
+            
+            <div className="mb-4">
+              <label className="block text-gray-700 font-medium mb-2">
+                Nom complet <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-blue focus:border-transparent"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                placeholder="Jean Dupont"
+                required
+              />
+            </div>
+            
+            <div className="mb-6">
+              <label className="block text-gray-700 font-medium mb-2">
+                Adresse email <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="email"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-blue focus:border-transparent"
+                value={customerEmail}
+                onChange={(e) => setCustomerEmail(e.target.value)}
+                placeholder="jean.dupont@example.com"
+                required
+              />
+            </div>
+            
+            <div className="flex space-x-3">
+              <button
+                onClick={closeModal}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handlePayment}
+                disabled={isLoading || !customerEmail || !customerName}
+                className="flex-1 px-4 py-2 bg-brand-blue text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? 'Redirection...' : 'Continuer vers le paiement'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -105,7 +218,9 @@ const Services: React.FC = () => {
       <div className="container mx-auto px-6">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-brand-blue font-display">Des formules adaptées à vos besoins</h2>
-          <p className="text-lg text-gray-700 mt-4 max-w-2xl mx-auto">Que vous soyez autonome ou que vous souhaitiez un accompagnement de A à Z, nous avons la solution.</p>
+          <p className="text-base md:text-lg text-gray-700 mt-4 max-w-3xl mx-auto px-4 md:px-0 leading-relaxed">
+            Que vous soyez autonome ou que vous souhaitiez un accompagnement de A&nbsp;à&nbsp;Z, nous&nbsp;avons&nbsp;la&nbsp;solution.
+          </p>
         </div>
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           <ServiceCard
@@ -114,6 +229,7 @@ const Services: React.FC = () => {
             priceSuffix=" € TTC"
             description="Pour les personnes organisées et autonomes qui souhaitent constituer leur dossier en toute confiance, tout en évitant les erreurs."
             features={autonomieFeatures}
+            planId="autonomie" // ID pour le backend
           />
           <ServiceCard
             title="🟩 Pack Premium – VisaPack Sérénité"
@@ -122,17 +238,30 @@ const Services: React.FC = () => {
             description="Pour ceux qui souhaitent une prise en charge complète et sans stress."
             features={premiumFeatures}
             isFeatured={true}
+            planId="premium" // ID pour le backend
           />
         </div>
 
         <div className="max-w-4xl mx-auto mt-12 p-6 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 rounded-r-lg" role="alert">
           <h4 className="font-bold text-lg mb-3">⚠️ Frais officiels obligatoires à prévoir (non inclus dans nos formules)</h4>
           <ul className="list-none space-y-2 text-sm">
-            <li>• <strong>Attestation d’hébergement en mairie</strong> (timbre fiscal) → 30 €</li>
+            <li>• <strong>Attestation d'hébergement en mairie</strong> (timbre fiscal) → 30 €</li>
             <li>• <strong>Frais TLS Contact</strong> (centre de dépôt) → ≈ 30 €</li>
             <li>• <strong>Frais de visa Schengen</strong> → ≈ 90 €</li>
             <li>• <strong>Assurance voyage/médicale Schengen</strong> obligatoire → ≈ 30 à 60 €</li>
           </ul>
+        </div>
+
+        <div className="max-w-4xl mx-auto mt-6 p-6 bg-blue-50 border-l-4 border-brand-blue text-gray-800 rounded-r-lg" role="alert">
+          <h4 className="font-bold text-lg mb-3 text-brand-blue">📌 Mention importante</h4>
+          <p className="text-sm mb-2">
+            <strong>VisaConnect n'est pas responsable de la décision finale du consulat ou de l'ambassade.</strong>
+          </p>
+          <p className="text-sm">
+            Notre engagement porte uniquement sur la qualité de l'accompagnement et la préparation optimale de votre dossier. 
+            Nous mettons tout en œuvre pour maximiser vos chances de succès, mais la décision d'octroyer ou non le visa 
+            reste à la seule discrétion des autorités consulaires françaises.
+          </p>
         </div>
 
       </div>

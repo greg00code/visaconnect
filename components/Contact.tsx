@@ -10,19 +10,43 @@ const Contact: React.FC = () => {
   });
 
   const [formStatus, setFormStatus] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the data to a backend or service like n8n.
-    // For this frontend-only example, we'll just simulate a success message.
-    console.log('Form data submitted:', formData);
-    setFormStatus('Votre message a bien été envoyé. Nous vous répondrons sous 48h.');
-    setFormData({ name: '', email: '', service: 'non-specifie', message: '' });
+    setIsSubmitting(true);
+    setFormStatus('');
+
+    try {
+      const response = await fetch('https://n8n.galette.ovh/webhook/formulaire', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          timestamp: new Date().toISOString(),
+          source: 'visaconnect-website'
+        }),
+      });
+
+      if (response.ok) {
+        setFormStatus('✅ Votre message a bien été envoyé. Nous vous répondrons sous 48h.');
+        setFormData({ name: '', email: '', service: 'non-specifie', message: '' });
+      } else {
+        setFormStatus('❌ Une erreur est survenue. Veuillez réessayer ou nous contacter directement par email.');
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi du formulaire:', error);
+      setFormStatus('❌ Une erreur est survenue. Veuillez réessayer ou nous contacter directement par email.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -61,8 +85,20 @@ const Contact: React.FC = () => {
                         <label htmlFor="message" className="block text-brand-blue font-semibold mb-2">Votre message</label>
                         <textarea id="message" name="message" rows={4} value={formData.message} onChange={handleChange} className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-gold" required></textarea>
                     </div>
-                    <button type="submit" className="w-full bg-brand-gold text-brand-blue font-bold py-3 px-8 rounded-full text-lg hover:bg-yellow-400 transition duration-300">Envoyer ma demande</button>
-                    {formStatus && <p className="mt-4 text-center text-green-700">{formStatus}</p>}
+                    <button 
+                      type="submit" 
+                      disabled={isSubmitting}
+                      className={`w-full bg-brand-gold text-brand-blue font-bold py-3 px-8 rounded-full text-lg transition duration-300 ${
+                        isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-yellow-400'
+                      }`}
+                    >
+                      {isSubmitting ? 'Envoi en cours...' : 'Envoyer ma demande'}
+                    </button>
+                    {formStatus && (
+                      <p className={`mt-4 text-center ${formStatus.includes('✅') ? 'text-green-700' : 'text-red-700'}`}>
+                        {formStatus}
+                      </p>
+                    )}
                 </form>
             </div>
         </div>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur de lien questionnaire - VisaConnect</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #0D2F5F;
+            margin-bottom: 30px;
+        }
+        input, button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background: #0D2F5F;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #1a4080;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f8ff;
+            border: 1px solid #0D2F5F;
+            border-radius: 5px;
+            word-break: break-all;
+        }
+        .copy-btn {
+            background: #D4AF37;
+            color: #0D2F5F;
+            margin-top: 10px;
+        }
+        .copy-btn:hover {
+            background: #b8941f;
+        }
+        .success {
+            color: green;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Générateur de lien questionnaire</h1>
+        
+        <div>
+            <label for="clientName">Nom du client (optionnel)</label>
+            <input type="text" id="clientName" placeholder="Ex: Marie Dupont">
+        </div>
+        
+        <button onclick="generateLink()">Générer un lien unique</button>
+        
+        <div id="result" style="display: none;">
+            <div class="result">
+                <strong>Lien généré :</strong><br>
+                <span id="generatedLink"></span>
+            </div>
+            <button class="copy-btn" onclick="copyLink()">📋 Copier le lien</button>
+            <div id="copySuccess" class="success" style="display: none;">✅ Lien copié !</div>
+        </div>
+        
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+            <h3>📝 Instructions :</h3>
+            <ol>
+                <li>Entrez le nom du client (optionnel)</li>
+                <li>Cliquez sur "Générer un lien unique"</li>
+                <li>Copiez le lien généré</li>
+                <li>Envoyez-le au client par email</li>
+            </ol>
+            <p style="color: #666; font-size: 14px; margin-top: 20px;">
+                💡 Chaque lien contient un token unique qui permet d'identifier et sauvegarder les réponses du client.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function generateLink() {
+            const clientName = document.getElementById('clientName').value;
+            const timestamp = Date.now();
+            const random = Math.random().toString(36).substring(2, 8);
+            
+            let token;
+            if (clientName) {
+                // Nettoyer le nom (enlever espaces et caractères spéciaux)
+                const cleanName = clientName.toLowerCase().replace(/[^a-z0-9]/g, '');
+                token = `${cleanName}_${timestamp}_${random}`;
+            } else {
+                token = `visa_${timestamp}_${random}`;
+            }
+            
+            const link = `https://visaconnect.fr/questionnaire?token=${token}`;
+            
+            document.getElementById('generatedLink').textContent = link;
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('copySuccess').style.display = 'none';
+        }
+        
+        function copyLink() {
+            const link = document.getElementById('generatedLink').textContent;
+            navigator.clipboard.writeText(link).then(function() {
+                document.getElementById('copySuccess').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('copySuccess').style.display = 'none';
+                }, 3000);
+            });
+        }
+    </script>
+</body>
+</html>

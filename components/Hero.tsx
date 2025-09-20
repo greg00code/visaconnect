@@ -6,7 +6,7 @@ const Hero: React.FC = () => {
     <section className="relative bg-brand-blue text-white">
       <div className="absolute inset-0">
         <img
-          src="https://picsum.photos/1600/900?grayscale"
+          src="https://picsum.photos/seed/visaconnect-hero/1600/900?grayscale"
           alt="Couple heureux"
           className="w-full h-full object-cover opacity-10"
         />

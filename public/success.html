@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Paiement réussi - VisaConnect</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'brand-blue': '#0D2F5F',
+              'brand-gold': '#D4AF37',
+            }
+          }
+        }
+      }
+    </script>
+</head>
+<body>
+    <div class="min-h-screen bg-gradient-to-b from-green-50 to-white flex items-center justify-center p-4">
+      <div class="bg-white rounded-xl shadow-2xl p-8 max-w-2xl w-full text-center">
+        <div class="mb-6">
+          <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+          <h1 class="text-3xl font-bold text-gray-800 mb-2">Paiement réussi ! 🎉</h1>
+          <p class="text-gray-600">Merci pour votre confiance</p>
+        </div>
+
+        <div class="bg-blue-50 rounded-lg p-6 mb-6">
+          <h2 class="text-xl font-bold text-brand-blue mb-3">🚀 Prochaines étapes</h2>
+          <div class="text-left space-y-3">
+            <div class="flex items-start">
+              <span class="text-brand-gold font-bold mr-2">1.</span>
+              <p class="text-gray-700">
+                <strong>Vous allez recevoir un email</strong> dans les prochaines minutes avec :
+              </p>
+            </div>
+            <ul class="ml-6 space-y-2 text-sm text-gray-600">
+              <li>• Votre lien personnel pour le questionnaire détaillé</li>
+              <li>• L'accès à votre dossier Google Drive partagé</li>
+              <li>• Les instructions pour déposer vos documents</li>
+              <li>• Votre facture au format PDF</li>
+            </ul>
+            
+            <div class="flex items-start mt-4">
+              <span class="text-brand-gold font-bold mr-2">2.</span>
+              <p class="text-gray-700">
+                <strong>Remplissez le questionnaire</strong> dès que possible pour que nous puissions commencer la préparation de votre dossier
+              </p>
+            </div>
+            
+            <div class="flex items-start">
+              <span class="text-brand-gold font-bold mr-2">3.</span>
+              <p class="text-gray-700">
+                <strong>Déposez vos documents</strong> dans le dossier Google Drive selon les instructions
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+          <p class="text-yellow-800 text-sm">
+            <strong>📧 Vérifiez vos spams</strong> si vous ne recevez pas l'email dans les 10 minutes
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <p class="text-gray-600">
+            Redirection vers l'accueil dans <span id="countdown" class="font-bold text-brand-blue">10</span> secondes...
+          </p>
+          
+          <button
+            onclick="window.location.href='/'"
+            class="px-6 py-3 bg-brand-blue text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          >
+            Retour à l'accueil
+          </button>
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-gray-200">
+          <p class="text-gray-500 text-sm">
+            Des questions ? Contactez-nous à
+            <a href="mailto:contact@visaconnect.fr" class="text-brand-blue hover:underline">
+              contact@visaconnect.fr
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let countdown = 10;
+      const countdownElement = document.getElementById('countdown');
+      
+      const timer = setInterval(() => {
+        countdown--;
+        countdownElement.textContent = countdown;
+        
+        if (countdown <= 0) {
+          clearInterval(timer);
+          window.location.href = '/';
+        }
+      }, 1000);
+    </script>
+</body>
+</html>
