@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const ScrollProgress: React.FC = () => {
+  const [scrollProgress, setScrollProgress] = useState<number>(0);
   const handleScroll = () => {
     const scrollHeight = Math.max(
       document.body.scrollHeight, document.documentElement.scrollHeight,
@@ -38,6 +39,7 @@ const ScrollProgress: React.FC = () => {
         backgroundStyle = `linear-gradient(to right, ${blue} 33.33%, ${white} 33.33%, ${white} 66.66%, ${red} 66.66%)`;
     }
 
+    setScrollProgress(scrollPercentage);
     document.documentElement.style.setProperty('--scroll-progress', `${scrollPercentage}%`);
     document.documentElement.style.setProperty('--scroll-bg', backgroundStyle);
   };
@@ -62,7 +64,7 @@ const ScrollProgress: React.FC = () => {
       aria-label="Progression de la lecture de la page"
       aria-valuemin={0} 
       aria-valuemax={100}
-      aria-valuenow={typeof window !== 'undefined' ? parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--scroll-progress')) : 0}
+      aria-valuenow={Math.round(scrollProgress)}
     >
       <div 
         className="h-full shadow-md"

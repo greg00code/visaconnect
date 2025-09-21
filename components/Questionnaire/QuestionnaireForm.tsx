@@ -55,6 +55,7 @@ const QuestionnaireForm: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   
   const totalSteps = 5; // Nombre de sections
   
@@ -130,8 +131,95 @@ const QuestionnaireForm: React.FC = () => {
     }
   };
   
+  const validateCurrentStep = (): boolean => {
+    setValidationErrors({});
+    const errors: Record<string, string> = {};
+
+    switch (currentStep) {
+      case 1:
+        if (!formData.personalInfo?.lastName) {
+          errors.lastName = 'Le nom est obligatoire';
+        }
+        if (!formData.personalInfo?.firstName) {
+          errors.firstName = 'Le prénom est obligatoire';
+        }
+        if (!formData.personalInfo?.dateOfBirth) {
+          errors.dateOfBirth = 'La date de naissance est obligatoire';
+        }
+        if (!formData.personalInfo?.placeOfBirth) {
+          errors.placeOfBirth = 'Le lieu de naissance est obligatoire';
+        }
+        if (!formData.personalInfo?.nationality) {
+          errors.nationality = 'La nationalité est obligatoire';
+        }
+        if (!formData.personalInfo?.passportNumber) {
+          errors.passportNumber = 'Le numéro de passeport est obligatoire';
+        }
+        if (!formData.personalInfo?.email) {
+          errors.email = 'L\'email est obligatoire';
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.personalInfo.email)) {
+          errors.email = 'L\'email n\'est pas valide';
+        }
+        if (!formData.personalInfo?.phone) {
+          errors.phone = 'Le téléphone est obligatoire';
+        }
+        break;
+
+      case 2:
+        if (!formData.familyInfo?.maritalStatus) {
+          errors.maritalStatus = 'Le statut marital est obligatoire';
+        }
+        break;
+
+      case 3:
+        if (!formData.travelInfo?.purposeOfVisit) {
+          errors.purposeOfVisit = 'Le motif de visite est obligatoire';
+        }
+        if (!formData.travelInfo?.durationOfStay) {
+          errors.durationOfStay = 'La durée de séjour est obligatoire';
+        }
+        if (!formData.travelInfo?.dateOfArrival) {
+          errors.dateOfArrival = 'La date d\'arrivée est obligatoire';
+        }
+        if (!formData.travelInfo?.dateOfDeparture) {
+          errors.dateOfDeparture = 'La date de départ est obligatoire';
+        }
+        break;
+
+      case 4:
+        if (!formData.accommodationInfo?.hostName) {
+          errors.hostName = 'Le nom de l\'hébergeur est obligatoire';
+        }
+        if (!formData.accommodationInfo?.hostAddress) {
+          errors.hostAddress = 'L\'adresse d\'hébergement est obligatoire';
+        }
+        if (!formData.accommodationInfo?.hostPhone) {
+          errors.hostPhone = 'Le téléphone de l\'hébergeur est obligatoire';
+        }
+        if (!formData.accommodationInfo?.relationship) {
+          errors.relationship = 'La relation avec l\'hébergeur est obligatoire';
+        }
+        break;
+
+      case 5:
+        if (!formData.financialInfo?.occupation) {
+          errors.occupation = 'La profession est obligatoire';
+        }
+        if (!formData.financialInfo?.monthlyIncome) {
+          errors.monthlyIncome = 'Le revenu mensuel est obligatoire';
+        }
+        break;
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      return false;
+    }
+    return true;
+  };
+
   const nextStep = () => {
-    if (currentStep < totalSteps) {
+    if (validateCurrentStep() && currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -165,23 +253,140 @@ const QuestionnaireForm: React.FC = () => {
                 <label className="block text-gray-700 mb-1">Nom *</label>
                 <input
                   type="text"
-                  className="w-full p-2 border rounded-md focus:ring-2 focus:ring-brand-gold"
+                  className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-brand-gold ${
+                    validationErrors.lastName ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   value={formData.personalInfo?.lastName || ''}
                   onChange={(e) => handleInputChange('personalInfo', 'lastName', e.target.value)}
                   required
                 />
+                {validationErrors.lastName && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.lastName}</p>
+                )}
               </div>
               <div>
                 <label className="block text-gray-700 mb-1">Prénom *</label>
                 <input
                   type="text"
-                  className="w-full p-2 border rounded-md focus:ring-2 focus:ring-brand-gold"
+                  className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-brand-gold ${
+                    validationErrors.firstName ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   value={formData.personalInfo?.firstName || ''}
                   onChange={(e) => handleInputChange('personalInfo', 'firstName', e.target.value)}
                   required
                 />
+                {validationErrors.firstName && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.firstName}</p>
+                )}
               </div>
-              {/* Ajouter plus de champs selon votre PDF */}
+              <div>
+                <label className="block text-gray-700 mb-1">Date de naissance *</label>
+                <input
+                  type="date"
+                  className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-brand-gold ${
+                    validationErrors.dateOfBirth ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  value={formData.personalInfo?.dateOfBirth || ''}
+                  onChange={(e) => handleInputChange('personalInfo', 'dateOfBirth', e.target.value)}
+                  required
+                />
+                {validationErrors.dateOfBirth && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.dateOfBirth}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-1">Lieu de naissance *</label>
+                <input
+                  type="text"
+                  className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-brand-gold ${
+                    validationErrors.placeOfBirth ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  value={formData.personalInfo?.placeOfBirth || ''}
+                  onChange={(e) => handleInputChange('personalInfo', 'placeOfBirth', e.target.value)}
+                  required
+                />
+                {validationErrors.placeOfBirth && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.placeOfBirth}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-1">Nationalité *</label>
+                <input
+                  type="text"
+                  className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-brand-gold ${
+                    validationErrors.nationality ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  value={formData.personalInfo?.nationality || ''}
+                  onChange={(e) => handleInputChange('personalInfo', 'nationality', e.target.value)}
+                  required
+                />
+                {validationErrors.nationality && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.nationality}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-1">Numéro de passeport *</label>
+                <input
+                  type="text"
+                  className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-brand-gold ${
+                    validationErrors.passportNumber ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  value={formData.personalInfo?.passportNumber || ''}
+                  onChange={(e) => handleInputChange('personalInfo', 'passportNumber', e.target.value)}
+                  required
+                />
+                {validationErrors.passportNumber && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.passportNumber}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-1">Date d'émission du passeport</label>
+                <input
+                  type="date"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-gold"
+                  value={formData.personalInfo?.passportIssueDate || ''}
+                  onChange={(e) => handleInputChange('personalInfo', 'passportIssueDate', e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-1">Date d'expiration du passeport</label>
+                <input
+                  type="date"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-gold"
+                  value={formData.personalInfo?.passportExpiryDate || ''}
+                  onChange={(e) => handleInputChange('personalInfo', 'passportExpiryDate', e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-1">Email *</label>
+                <input
+                  type="email"
+                  className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-brand-gold ${
+                    validationErrors.email ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  value={formData.personalInfo?.email || ''}
+                  onChange={(e) => handleInputChange('personalInfo', 'email', e.target.value)}
+                  required
+                />
+                {validationErrors.email && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.email}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-1">Téléphone *</label>
+                <input
+                  type="tel"
+                  className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-brand-gold ${
+                    validationErrors.phone ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  value={formData.personalInfo?.phone || ''}
+                  onChange={(e) => handleInputChange('personalInfo', 'phone', e.target.value)}
+                  required
+                />
+                {validationErrors.phone && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.phone}</p>
+                )}
+              </div>
             </div>
           </div>
         );
@@ -190,11 +395,284 @@ const QuestionnaireForm: React.FC = () => {
         return (
           <div className="space-y-4">
             <h3 className="text-xl font-bold text-brand-blue mb-4">Situation familiale</h3>
-            {/* Champs pour la section 2 */}
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-gray-700 mb-1">Statut marital *</label>
+                <select
+                  className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-brand-gold ${
+                    validationErrors.maritalStatus ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  value={formData.familyInfo?.maritalStatus || ''}
+                  onChange={(e) => handleInputChange('familyInfo', 'maritalStatus', e.target.value)}
+                  required
+                >
+                  <option value="">Sélectionnez</option>
+                  <option value="single">Célibataire</option>
+                  <option value="married">Marié(e)</option>
+                  <option value="divorced">Divorcé(e)</option>
+                  <option value="widowed">Veuf/Veuve</option>
+                </select>
+                {validationErrors.maritalStatus && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.maritalStatus}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-1">Nom du conjoint (si applicable)</label>
+                <input
+                  type="text"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-gold"
+                  value={formData.familyInfo?.spouseName || ''}
+                  onChange={(e) => handleInputChange('familyInfo', 'spouseName', e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-1">Nationalité du conjoint (si applicable)</label>
+                <input
+                  type="text"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-gold"
+                  value={formData.familyInfo?.spouseNationality || ''}
+                  onChange={(e) => handleInputChange('familyInfo', 'spouseNationality', e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-1">Avez-vous des enfants ?</label>
+                <select
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-gold"
+                  value={formData.familyInfo?.children || ''}
+                  onChange={(e) => handleInputChange('familyInfo', 'children', e.target.value)}
+                >
+                  <option value="">Sélectionnez</option>
+                  <option value="yes">Oui</option>
+                  <option value="no">Non</option>
+                </select>
+              </div>
+            </div>
           </div>
         );
-      
-      // Ajouter les autres sections (3, 4, 5)
+
+      case 3:
+        return (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-brand-blue mb-4">Informations de voyage</h3>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-gray-700 mb-1">Motif de la visite *</label>
+                <select
+                  className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-brand-gold ${
+                    validationErrors.purposeOfVisit ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  value={formData.travelInfo?.purposeOfVisit || ''}
+                  onChange={(e) => handleInputChange('travelInfo', 'purposeOfVisit', e.target.value)}
+                  required
+                >
+                  <option value="">Sélectionnez</option>
+                  <option value="tourism">Tourisme</option>
+                  <option value="business">Affaires</option>
+                  <option value="family">Visite familiale</option>
+                  <option value="medical">Médical</option>
+                  <option value="study">Études</option>
+                  <option value="other">Autre</option>
+                </select>
+                {validationErrors.purposeOfVisit && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.purposeOfVisit}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-1">Durée prévue du séjour *</label>
+                <input
+                  type="text"
+                  placeholder="Ex: 15 jours"
+                  className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-brand-gold ${
+                    validationErrors.durationOfStay ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  value={formData.travelInfo?.durationOfStay || ''}
+                  onChange={(e) => handleInputChange('travelInfo', 'durationOfStay', e.target.value)}
+                  required
+                />
+                {validationErrors.durationOfStay && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.durationOfStay}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-1">Date d'arrivée prévue *</label>
+                <input
+                  type="date"
+                  className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-brand-gold ${
+                    validationErrors.dateOfArrival ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  value={formData.travelInfo?.dateOfArrival || ''}
+                  onChange={(e) => handleInputChange('travelInfo', 'dateOfArrival', e.target.value)}
+                  required
+                />
+                {validationErrors.dateOfArrival && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.dateOfArrival}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-1">Date de départ prévue *</label>
+                <input
+                  type="date"
+                  className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-brand-gold ${
+                    validationErrors.dateOfDeparture ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  value={formData.travelInfo?.dateOfDeparture || ''}
+                  onChange={(e) => handleInputChange('travelInfo', 'dateOfDeparture', e.target.value)}
+                  required
+                />
+                {validationErrors.dateOfDeparture && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.dateOfDeparture}</p>
+                )}
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-gray-700 mb-1">Avez-vous déjà obtenu des visas Schengen ?</label>
+                <select
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-gold"
+                  value={formData.travelInfo?.previousVisas || ''}
+                  onChange={(e) => handleInputChange('travelInfo', 'previousVisas', e.target.value)}
+                >
+                  <option value="">Sélectionnez</option>
+                  <option value="yes">Oui</option>
+                  <option value="no">Non</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 4:
+        return (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-brand-blue mb-4">Hébergement</h3>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-gray-700 mb-1">Nom de l'hébergeur *</label>
+                <input
+                  type="text"
+                  className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-brand-gold ${
+                    validationErrors.hostName ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  value={formData.accommodationInfo?.hostName || ''}
+                  onChange={(e) => handleInputChange('accommodationInfo', 'hostName', e.target.value)}
+                  required
+                />
+                {validationErrors.hostName && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.hostName}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-1">Téléphone de l'hébergeur *</label>
+                <input
+                  type="tel"
+                  className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-brand-gold ${
+                    validationErrors.hostPhone ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  value={formData.accommodationInfo?.hostPhone || ''}
+                  onChange={(e) => handleInputChange('accommodationInfo', 'hostPhone', e.target.value)}
+                  required
+                />
+                {validationErrors.hostPhone && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.hostPhone}</p>
+                )}
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-gray-700 mb-1">Adresse complète d'hébergement *</label>
+                <textarea
+                  rows={3}
+                  className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-brand-gold ${
+                    validationErrors.hostAddress ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  value={formData.accommodationInfo?.hostAddress || ''}
+                  onChange={(e) => handleInputChange('accommodationInfo', 'hostAddress', e.target.value)}
+                  required
+                />
+                {validationErrors.hostAddress && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.hostAddress}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-1">Relation avec l'hébergeur *</label>
+                <select
+                  className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-brand-gold ${
+                    validationErrors.relationship ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  value={formData.accommodationInfo?.relationship || ''}
+                  onChange={(e) => handleInputChange('accommodationInfo', 'relationship', e.target.value)}
+                  required
+                >
+                  <option value="">Sélectionnez</option>
+                  <option value="family">Famille</option>
+                  <option value="friend">Ami</option>
+                  <option value="spouse">Conjoint</option>
+                  <option value="business">Professionnel</option>
+                  <option value="hotel">Hôtel</option>
+                  <option value="other">Autre</option>
+                </select>
+                {validationErrors.relationship && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.relationship}</p>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+
+      case 5:
+        return (
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-brand-blue mb-4">Situation financière</h3>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-gray-700 mb-1">Profession *</label>
+                <input
+                  type="text"
+                  className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-brand-gold ${
+                    validationErrors.occupation ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  value={formData.financialInfo?.occupation || ''}
+                  onChange={(e) => handleInputChange('financialInfo', 'occupation', e.target.value)}
+                  required
+                />
+                {validationErrors.occupation && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.occupation}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-1">Employeur</label>
+                <input
+                  type="text"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-gold"
+                  value={formData.financialInfo?.employer || ''}
+                  onChange={(e) => handleInputChange('financialInfo', 'employer', e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-1">Revenu mensuel *</label>
+                <input
+                  type="text"
+                  placeholder="Ex: 3000€"
+                  className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-brand-gold ${
+                    validationErrors.monthlyIncome ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  value={formData.financialInfo?.monthlyIncome || ''}
+                  onChange={(e) => handleInputChange('financialInfo', 'monthlyIncome', e.target.value)}
+                  required
+                />
+                {validationErrors.monthlyIncome && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.monthlyIncome}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-1">Solde bancaire disponible</label>
+                <input
+                  type="text"
+                  placeholder="Ex: 5000€"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-gold"
+                  value={formData.financialInfo?.bankBalance || ''}
+                  onChange={(e) => handleInputChange('financialInfo', 'bankBalance', e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+        );
       
       default:
         return null;
